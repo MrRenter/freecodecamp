@@ -255,7 +255,7 @@ exports.returnUser = function(req, res, next) {
     User.find({'profile.username': req.params.username.toLowerCase()}, function(err, user) {
         if (err) { debug('Username err: ', err); next(err); }
         if (user[0]) {
-            var user = user[0];
+			var user = user[0];
             Challenge.find({}, null, {sort: {challengeNumber: 1}}, function (err, c) {
                 res.render('account/show', {
                     title: 'Camper: ',

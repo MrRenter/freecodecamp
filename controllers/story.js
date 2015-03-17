@@ -117,7 +117,7 @@ exports.returnIndividualStory = function(req, res, next) {
 
     var storyName = dashedName.replace(/\-/g, ' ');
 
-    Story.find({'storyLink' : new RegExp(storyName, 'i')}, function(err, story) {
+	Story.find({'storyLink' : new RegExp(storyName, 'i')}, function(err, story) {
         if (err) {
             next(err);
         }
@@ -137,7 +137,7 @@ exports.returnIndividualStory = function(req, res, next) {
             return res.redirect('../stories/' + dashedNameFull);
         }
 
-        res.render('stories/index', {
+		res.render('stories/index', {
             title: story.headline,
             link: story.link,
             author: story.author,
