@@ -3,7 +3,7 @@ var User = require('./../models/User'),
 	PairUser = require('./../models/pairUser');
 
 exports.index = function(req, res){
-
+	// could run the expires script here ...
 	PairUser.find().populate('user', 'email profile').exec(function(err, pairUsers) {
 		//console.log(pairUsers);
 		res.render('paircode/index.jade', {
@@ -40,17 +40,41 @@ exports.setOnline = function(req, res) {
 		var pairCode = new PairUser({});
 		pairCode.user = req.user._id;
 		pairCode.timeOnline = new Date();
+		// save the comments from the form
+		pairCode.comment = req.body.comment;
+
+
 		pairCode.save(function(err) {
 			if (err) {
 				return res.status(400);
 			} 
 			else {
-				console.log("Paircode saved.");
+				res.redirect('/pair-coding');
 			}
 		});
 	} else {
+		// this shouldn't show, as the user should be able to check if they're online via the template.
 		console.log("already online");
 	}
+};
+
+exports.editPairRequest = function(req, res) {
+	// search for the user's pair request
+	PairUser.findOne({user: req.user._id}, function(err, pairuser) {
+		if (err) {
+			console.log("There was an error finding the user.");
+		}
+		pairuser.comment = req.body.comment;
+		pairuser.timeOnline = new Date();
+		pairuser.save(function(err) {
+			if (err) {
+				console.log("There was an error saving the pairuser.");
+			}
+			else {
+				res.redirect('/pair-coding');
+			}
+		});
+	});
 };
 
 
@@ -91,6 +115,7 @@ exports.removeOldOnlinePost = function () {
 };
 
 exports.setOffline = function(req, res){
+	// change the user's online status
 	User.findById(req.user._id, function(err, user) {
 		if (err) {
 			console.log("ERROR: Could not find user, METHOD: setOffline: " + err);
@@ -103,19 +128,20 @@ exports.setOffline = function(req, res){
 			}
 		});
 	});
+	// remove the pair requests from that user
+	PairUser.findOne({user: req.user._id}, function(err, pair) {
+		if (err) {
+			console.log("Error finding offline users.");
+		} 
+		pair.remove(function(err) {
+			if (err) {
+				console.log("error removing old posts.");
+			}
+		});
+	});
+	res.redirect('/pair-coding');
 };
 
-function getOnline(req, res) {
-
-	var online = PairUser.find({});
-	var working = online.exec(function(err, users){
-		return users;
-	})
-	console.log("getonlinefunction: " + working);
-
-	return working[0];
-};
 
 
-exports.getSingle
 
